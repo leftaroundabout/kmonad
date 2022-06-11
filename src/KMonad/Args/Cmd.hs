@@ -23,7 +23,7 @@ import KMonad.Args.Types (DefSetting(..))
 import KMonad.Util
 import Paths_kmonad (version)
 
-import qualified KMonad.Parsing as M  -- [M]egaparsec functionality
+import qualified KMonad.Prelude.Parsing as M  -- [M]egaparsec functionality
 
 import Data.Version (showVersion)
 import Options.Applicative
@@ -184,4 +184,4 @@ tokenParser = megaReadM . M.choice . map (M.try . uncurry ((*>) . symbol))
 
 -- | Megaparsec <--> optparse-applicative interface
 megaReadM :: M.Parser a -> ReadM a
-megaReadM p = eitherReader (mapLeft show . M.parse p "" . fromString)
+megaReadM p = eitherReader (mapLeft show . M.parse p . fromString)

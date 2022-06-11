@@ -33,8 +33,8 @@ module KMonad.Args.Parser
 where
 
 import KMonad.Prelude hiding (try, bool)
+import KMonad.Prelude.Parsing
 
-import KMonad.Parsing
 import KMonad.Args.Types
 import KMonad.Keyboard
 import KMonad.Keyboard.ComposeSeq
@@ -141,13 +141,6 @@ keycodeP = fromNamed (Q.reverse keyNames ^.. Q.itemed) <?> "keycode"
 -- | Parse an integer
 numP :: Parser Int
 numP = L.decimal
-
--- | Parse text with escaped characters between double quotes.
-textP :: Parser Text
-textP = do
-  _ <- char '\"'
-  s <- manyTill L.charLiteral (char '\"')
-  pure . T.pack $ s
 
 -- | Parse a variable reference
 derefP :: Parser Text

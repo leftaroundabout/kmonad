@@ -37,13 +37,19 @@ library
     -Wno-name-shadowing
     -Wno-unused-imports
   build-depends:
-      base
+      ansi-wl-pprint
+    , base
     , cereal
-    -- , hspec
+    , dhall
+    , either
+    , Glob
+    , hspec
     , lens
     , megaparsec
     , mtl
     , optparse-applicative
+    , pretty-simple
+    , raw-strings-qq
     , resourcet
     , rio
     , time
@@ -57,7 +63,6 @@ library
       FlexibleContexts
       FlexibleInstances
       FunctionalDependencies
-      GeneralizedNewtypeDeriving
       LambdaCase
       MultiParamTypeClasses
       MultiWayIf
@@ -70,6 +75,15 @@ library
 
   exposed-modules:
       KMonad.App
+      KMonad.App.Cfg
+      KMonad.App.Cfg.Expr.Cmd
+      KMonad.App.Cfg.Expr.KeyInput
+      KMonad.App.Cfg.Expr.KeyOutput
+      KMonad.App.Cfg.Expr.KeyRepeat
+      KMonad.App.Cfg.Expr.Logging
+      KMonad.App.Cfg.Expr.Path
+      KMonad.App.Cfg.Invoc
+      KMonad.App.Cfg.Types
       KMonad.App.Main
       KMonad.App.Types
       KMonad.Args
@@ -78,6 +92,8 @@ library
       KMonad.Args.Joiner
       KMonad.Args.TH
       KMonad.Args.Types
+      KMonad.Logging
+      KMonad.Logging.Cfg
       KMonad.Model
       KMonad.Model.Action
       KMonad.Model.BEnv
@@ -93,9 +109,9 @@ library
       KMonad.Keyboard.Keycode
       KMonad.Keyboard.Ops
       KMonad.Keyboard.Types
-      KMonad.Parsing
       KMonad.Prelude
       KMonad.Prelude.Imports
+      KMonad.Prelude.Parsing
       KMonad.Prelude.Definitions
       KMonad.Util
       KMonad.Util.LayerStack
