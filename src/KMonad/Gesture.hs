@@ -1,11 +1,26 @@
 -- |
 
 module KMonad.Gesture
+  ( -- * Basic types
+    Gesture
+  , GestureError(..)
+  , GestureReadError(..)
+  , Toggle(..)
 
+    -- * Creation and combination
+  , fromList
+  , readGesture
+  , tap
+  , around
+
+    -- * Viewing properties
+  , tag
+  , tags
+  )
 where
 
 import KMonad.Prelude hiding (try)
-import KMonad.Parsing
+import KMonad.Prelude.Parsing
 
 import Control.Monad.Except
 import Control.Monad.State
@@ -21,11 +36,13 @@ import qualified RIO.Set  as S
 
 --------------------------------------------------------------------------------
 
-data Toggle a = On a | Off a deriving (Eq, Show, Functor)
+data Toggle a = On a | Off a
+  deriving (Eq, Show, Functor, Foldable, Traversable)
+
 
 -- | A sequence of toggle-changes guaranteed to be valid
 newtype Gesture a = Gesture { _gesture :: Q.Seq (Toggle a) }
-  deriving (Eq, Show, Functor)
+  deriving (Eq, Show, Functor, Foldable, Traversable)
 
 instance Semigroup (Gesture a) where
   (Gesture a) <> (Gesture b) = Gesture $ a <> b
@@ -94,8 +111,8 @@ instance Show GestureReadError where
 instance Exception GestureReadError
 
 -- | Parse a Gesture straight from Text
-prsGesture :: Text -> Either GestureReadError (Gesture Text)
-prsGesture t = case runParser gest "" t of
+readGesture :: Text -> Either GestureReadError (Gesture Text)
+readGesture t = case runParser gest "" t of
   Left e -> Left . GestureParseError . ParseError $ e
   Right gs -> case fromList (toList gs) of
     Left e -> Left . GestureValidateError $ e
