@@ -5,6 +5,7 @@ module KMonad.App.Cfg.Expr.Path where
 import KMonad.Prelude hiding (try)
 
 import KMonad.Prelude.Parsing
+import KMonad.App.Cfg.Types
 import KMonad.App.Cfg.Expr.Types
 
 import System.FilePath.Glob (glob)
@@ -17,26 +18,8 @@ import qualified RIO.Text as T
 
 -- basic types -----------------------------------------------------------------
 
--- | Root directories we know how to search
-data PathRoot
-  = XdgCfg      -- ^ The app-configuration directory plus "/kmonad"
-  | Home        -- ^ Home directory
-  | Custom Text -- ^ Any other path-prefix, may contain globs
-  deriving (Eq, Show)
-
--- | How to look for a particular filepath
-data Path = Path
-  { _val    :: Text           -- ^ The pattern to match
-  , _root   :: Maybe PathRoot -- ^ Optionally a path to be relative to
-  , _doGlob :: Bool           -- ^ Whether to glob-match this expression
-  } deriving (Eq, Show)
-makeLenses ''Path
-
 -- | A type alias for some text that we expect to parse to a valid 'Path'
 type PathExpr = Text
-
-
--- errors ----------------------------------------------------------------------
 
 -- | Things that can go wrong with 'Path' resolution
 data PathExprError
@@ -84,7 +67,7 @@ resolve p = do
 
 -- | An 'Expr Path' with configurable extra directories
 pathExprWith :: Named PathRoot -> Expr Path
-pathExprWith nr = Expr (pathT nr) $ parse (pathP nr)
+pathExprWith nr = Expr (pathT nr) (parse (pathP nr)) _PathParseError
 
 -- | An 'Expr Path' with configurable extra directories
 pathExpr :: Expr Path
@@ -92,7 +75,7 @@ pathExpr = pathExprWith []
 
 -- | An Iso between Text and Path with configurable extra directories
 _PathExprWith :: Named PathRoot -> Iso' Path Text
-_PathExprWith nr = exprIso (pathExprWith nr) _PathParseError
+_PathExprWith nr = exprIso $ pathExprWith nr
 
 -- | An Iso between Text and Path
 _PathExpr ::  Iso' Path Text
@@ -101,8 +84,6 @@ _PathExpr = _PathExprWith []
 -- | Try to read a 'Path' value from some text
 readPath :: Text -> Either ParseError Path
 readPath = parse (pathP [])
-
-
 
 -- exprs -----------------------------------------------------------------------
 

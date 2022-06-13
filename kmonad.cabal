@@ -76,6 +76,10 @@ library
   exposed-modules:
       KMonad.App
       KMonad.App.Cfg
+      KMonad.App.Cfg.Cfgable
+      KMonad.App.Cfg.Default
+      KMonad.App.Cfg.Expr
+      KMonad.App.Cfg.Expr.Types
       KMonad.App.Cfg.Expr.Cmd
       KMonad.App.Cfg.Expr.KeyInput
       KMonad.App.Cfg.Expr.KeyOutput
@@ -83,6 +87,7 @@ library
       KMonad.App.Cfg.Expr.Logging
       KMonad.App.Cfg.Expr.Path
       KMonad.App.Cfg.Invoc
+      KMonad.App.Cfg.InvocNew
       KMonad.App.Cfg.Types
       KMonad.App.Main
       KMonad.App.Types

@@ -12,8 +12,8 @@ let KCfg =
       , keyOutputCfg : Text
       , keymapFile : Text
       , keyRepeat : Optional Text
-      , preKIOcmd : Optional Text
-      , postKIOcmd : Optional Text
+      , preKioCmd : Optional Text
+      , postKioCmd : Optional Text
       }
 
 in  { KCfg, CodeNames, GestureNames }

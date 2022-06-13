@@ -5,21 +5,16 @@ module KMonad.App.Cfg.Expr.KeyOutput where
 import KMonad.Prelude
 
 import KMonad.Prelude.Parsing
+import KMonad.App.Cfg.Types
 import KMonad.App.Cfg.Expr.Cmd
 import KMonad.App.Cfg.Expr.Path
+import KMonad.App.Cfg.Expr.Types
 
 -- basic types -----------------------------------------------------------------
 
-data KeyOutputCfg
-  = LinUinputSnk (Maybe Text)
-  | WinSendSnk
-  | MacKextSink
-  | CmdSnk Cmd
-  | StdoutSnk
-  deriving (Eq, Show)
-
 type KeyOutputExpr = Text
 
+-- | Things that can go wrong with 'KeyOutputCfg' resolution
 newtype KeyOutputExprError = KeyOutputParseError ParseError deriving Eq
 makeClassyPrisms ''KeyOutputExprError
 
@@ -32,8 +27,13 @@ instance AsKeyOutputExprError SomeException where _KeyOutputExprError = exceptio
 
 -- basic ops -------------------------------------------------------------------
 
+-- | An 'Expr' expressing 'KeyOutputCfg'
+keyOutputExpr :: Expr KeyOutputCfg
+keyOutputExpr = Expr outputT (parse outputP) _KeyOutputParseError
+
+-- | An 'Iso' between 'KeyOutputCfg' and 'KeyOutputExpr'
 _KeyOutputExpr :: Iso' KeyOutputCfg KeyOutputExpr
-_KeyOutputExpr = iso outputT $ throwEither _KeyOutputParseError . parse outputP
+_KeyOutputExpr = exprIso keyOutputExpr
 
 -- exprs -----------------------------------------------------------------------
 

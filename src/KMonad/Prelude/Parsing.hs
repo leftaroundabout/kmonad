@@ -94,6 +94,7 @@ msP = view (from ms) <$> natP <?> "natural number expressing ms"
 textP :: Parser Text
 textP = pack <$> (char '\"' *> manyTill X.charLiteral (char '\"' ))
 
+-- | Parse a []-surrounded string with ,-separated values
 listOfP :: Parser a -> Parser [a]
 listOfP p = between (char '[') (char ']') $ sepBy p (hlex $ char ',')
 
