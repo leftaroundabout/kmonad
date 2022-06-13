@@ -5,21 +5,16 @@ module KMonad.App.Cfg.Expr.KeyInput where
 import KMonad.Prelude
 
 import KMonad.Prelude.Parsing
+import KMonad.App.Cfg.Types
 import KMonad.App.Cfg.Expr.Cmd
 import KMonad.App.Cfg.Expr.Path
+import KMonad.App.Cfg.Expr.Types
 
 -- basic types -----------------------------------------------------------------
 
-data KeyInputCfg
-  = LinEvdevSrc Path
-  | WinHookSrc
-  | MacIOKitSrc (Maybe Text)
-  | CmdSrc Cmd
-  | StdinSrc
-  deriving (Eq, Show)
-
 type KeyInputExpr = Text
 
+-- | Things that can go wrong with 'KeyInputCfg' resolution
 newtype KeyInputExprError = KeyInputParseError ParseError deriving Eq
 makeClassyPrisms ''KeyInputExprError
 
@@ -32,18 +27,24 @@ instance AsKeyInputExprError SomeException where _KeyInputExprError = exception
 
 -- basic ops -------------------------------------------------------------------
 
-_KeyInputExpr :: Iso' KeyInputCfg KeyInputExpr
-_KeyInputExpr = iso inputT $ throwEither _KeyInputParseError . parse inputP
+-- | An 'Expr' expressing 'KeyInputCfg'
+keyInputExpr :: Expr KeyInputCfg
+keyInputExpr = Expr inputT (parse inputP) _KeyInputParseError
 
+-- | An 'Iso' between 'KeyInputCfg' and 'KeyInputExpr'
+_KeyInputExpr :: Iso' KeyInputCfg KeyInputExpr
+_KeyInputExpr = exprIso keyInputExpr
+
+-- | An 'Iso' for 'Path' with extra root-dirs for input
 _InputPathExpr :: Iso' Path PathExpr
 _InputPathExpr = _PathExprWith extraRoots
 
 -- exprs -----------------------------------------------------------------------
 
+-- | Extra 'RootDir' options for 'LinEvdevSrc' 'Path'
 extraRoots :: Named PathRoot
 extraRoots = [ ("input", Custom "/dev/input/")
              , ("by-id", Custom "/dev/input/by-id/") ]
-
 
 -- | A parser that tries to extract an 'InputCfg' from 'Text'
 --

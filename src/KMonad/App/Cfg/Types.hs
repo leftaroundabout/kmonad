@@ -7,8 +7,8 @@ import KMonad.Prelude
 
 import KMonad.Gesture
 import KMonad.Logging.Cfg
-import KMonad.App.Cfg.Expr.Cmd
-import KMonad.App.Cfg.Expr.Path
+-- import KMonad.App.Cfg.Expr.Cmd
+-- import KMonad.App.Cfg.Expr.Path
 import KMonad.Keyboard.Types (DelayRate(..))
 
 import System.IO
@@ -30,10 +30,41 @@ type KeyRepeatSpec = Text
 type LogLevelSpec = Text
 type GestureExpr = Text
 
+
+-- path ------------------------------------------------------------------------
+
+-- | Root directories we know how to search
+data PathRoot
+  = XdgCfg      -- ^ The app-configuration directory plus "/kmonad"
+  | Home        -- ^ Home directory
+  | Custom Text -- ^ Any other path-prefix, may contain globs
+  deriving (Eq, Show)
+
+-- | How to look for a particular filepath
+data Path = Path
+  { _val    :: Text           -- ^ The pattern to match
+  , _root   :: Maybe PathRoot -- ^ Optionally a path to be relative to
+  , _doGlob :: Bool           -- ^ Whether to glob-match this expression
+  } deriving (Eq, Show)
+makeLenses ''Path
+
+-- cmd -------------------------------------------------------------------------
+
+data Cmd
+  = SimpleCmd Text
+  | CompoundCmd FilePath [Text]
+  | NoCmd
+  deriving (Eq, Show)
+
  -------------------------------------------------------------------------------
 
 data RunType = FullRun | CfgTest | EvTest
   deriving (Eq, Show)
+
+data CmdAllow = AllCmds | InitCmds | NoCmds
+  deriving (Eq, Show)
+
+-- kio -------------------------------------------------------------------------
 
 data KeyInputCfg
   = LinEvdevSrc Path
@@ -66,7 +97,7 @@ data LocaleCfg = LocaleCfg
 data RunCfg = RunCfg
   { _cfgPath :: Path
   , _kbdPath :: Path
-  , _cmdAllow :: Bool
+  , _cmdAllow :: CmdAllow
   , _runType :: RunType
   } deriving (Eq, Show)
 
@@ -75,8 +106,8 @@ data KioCfg = KioCfg
   , _fallthrough  :: Bool
   , _keyInputCfg  :: KeyInputCfg
   , _keyOutputCfg :: KeyOutputCfg
-  , _preKIOcmd    :: Maybe Cmd
-  , _postKIOcmd   :: Maybe Cmd
+  , _preKioCmd    :: Cmd
+  , _postKioCmd   :: Cmd
   } deriving (Eq, Show)
 
 newtype LogCfg = LogCfg { _logLevel :: LogLevel}
@@ -89,32 +120,6 @@ data AppCfg = AppCfg
   , _appRunCfg :: RunCfg
   } deriving (Eq, Show)
 
-
-defCfg :: AppCfg
-defCfg = AppCfg
-  { _appLocaleCfg = LocaleCfg
-    { _namedCodes    = M.fromList []
-    , _namedGestures = M.fromList []
-    }
-  , _appLogCfg = LogCfg
-    { _logLevel = LevelWarn
-    }
-  , _appKioCfg = KioCfg
-    { _keyRepeatCfg = IgnoreRepeat
-    , _fallthrough = False
-    , _keyInputCfg = StdinSrc
-    , _keyOutputCfg = StdoutSnk
-    , _preKIOcmd = Nothing
-    , _postKIOcmd = Nothing
-    }
-  , _appRunCfg = RunCfg
-    { _cfgPath = "xdgcfg:kmonad.dhall" ^. from _PathExpr
-    , _kbdPath = "xdgcfg:keymap.kbd" ^. from _PathExpr
-    , _cmdAllow = False
-    , _runType = FullRun
-    }
-  }
-
 -- lenses ----------------------------------------------------------------------
 
 makeClassy ''RunCfg
@@ -124,6 +129,7 @@ makeClassy ''LogCfg
 makeClassy ''AppCfg
 
 instance HasLogCfg AppCfg where logCfg = appLogCfg
+instance HasKioCfg AppCfg where kioCfg = appKioCfg
 instance HasRunCfg AppCfg where runCfg = appRunCfg
 
 -- invoc  ----------------------------------------------------------------------
@@ -138,8 +144,8 @@ data Invoc = Invoc
   , _ikeyRepeat :: Maybe KeyRepeatSpec
   , _ikeyInputCfg :: Maybe KeyInputSpec
   , _ikeyOutputCfg :: Maybe KeyOutputSpec
-  , _ipreKIOcmd :: Maybe CmdSpec
-  , _ipostKIOcmd :: Maybe CmdSpec
+  , _ipreKioCmd :: Maybe CmdSpec
+  , _ipostKioCmd :: Maybe CmdSpec
   } deriving (Eq, Show)
 makeClassy ''Invoc
 
@@ -175,20 +181,20 @@ _DMap = iso (map $ uncurry DEntry) (map $ view mapKey &&& view mapValue)
 -- denotes do-not-change-this-setting. This is because we encode our app
 -- defaults *in dhall*. So the default invoc settings are to change nothing, the
 -- default CfgFile settings *are* the app defaults.
-data DhallCfg = DhallCfg
-  { _dcodeNames    :: [DEntry Name Natural]
-  , _dgestureNames :: [DEntry Name GestureExpr]
-  , _dfallthrough  :: Bool
-  , _dcmdAllow     :: Bool
-  , _dlogLevel     :: LogLevelSpec
-  , _dkeyInputCfg  :: KeyInputSpec
-  , _dkeyOutputCfg :: KeyOutputSpec
-  , _dkeymapFile   :: PathExpr
-  , _dkeyRepeat    :: Maybe KeyRepeatSpec
-  , _dpreKIOcmd    :: Maybe CmdSpec
-  , _dpostKIOcmd   :: Maybe CmdSpec
-  } deriving (Generic, D.FromDhall, Show)
-makeClassy ''DhallCfg
+-- data DhallCfg = DhallCfg
+--   { _dcodeNames    :: [DEntry Name Natural]
+--   , _dgestureNames :: [DEntry Name GestureExpr]
+--   , _dfallthrough  :: Bool
+--   , _dcmdAllow     :: Bool
+--   , _dlogLevel     :: LogLevelSpec
+--   , _dkeyInputCfg  :: KeyInputSpec
+--   , _dkeyOutputCfg :: KeyOutputSpec
+--   , _dkeymapFile   :: PathExpr
+--   , _dkeyRepeat    :: Maybe KeyRepeatSpec
+--   , _dpreKioCmd    :: Maybe CmdSpec
+--   , _dpostKioCmd   :: Maybe CmdSpec
+--   } deriving (Generic, D.FromDhall, Show)
+-- makeClassy ''DhallCfg
 
 
 -- loadDhallCfg :: MonadIO m => FilePath -> m DhallCfg

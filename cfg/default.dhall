@@ -8,8 +8,8 @@ let base =
       , cmdAllow = False
       , fallthrough = False
       , keyRepeat = None Text
-      , preKIOcmd = None Text
-      , postKIOcmd = None Text
+      , preKioCmd = None Text
+      , postKioCmd = None Text
       }
 
 let linux = base //

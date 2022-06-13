@@ -6,16 +6,14 @@ module KMonad.App.Cfg.Expr.Cmd where
 import KMonad.Prelude
 import KMonad.Prelude.Parsing
 
--- basic types -----------------------------------------------------------------
+import KMonad.App.Cfg.Types
+import KMonad.App.Cfg.Expr.Types
 
-data Cmd
-  = SimpleCmd { _fullcmd :: Text}
-  | CompoundCmd { _executable :: FilePath
-                , _args :: [Text] }
-    deriving (Eq, Show)
+-- basic types -----------------------------------------------------------------
 
 type CmdExpr = Text
 
+-- | Things that can go wrong with 'Cmd' resolution
 newtype CmdExprError = CmdParseError ParseError deriving Eq
 makeClassyPrisms ''CmdExprError
 
@@ -28,9 +26,12 @@ instance AsCmdExprError SomeException where _CmdExprError = exception
 
 -- basic ops -------------------------------------------------------------------
 
+cmdExpr :: Expr Cmd
+cmdExpr = Expr cmdT (parse cmdP) _CmdParseError
+
 -- | An Iso between 'Text' and 'Cmd' values
 _CmdExpr :: Iso' Cmd CmdExpr
-_CmdExpr = iso cmdT $ throwEither _CmdParseError . parse cmdP
+_CmdExpr = exprIso cmdExpr
 
 -- exprs -----------------------------------------------------------------------
 
@@ -50,6 +51,7 @@ no shorthand at the moment
 cmdT :: Cmd -> CmdExpr
 cmdT (SimpleCmd t) = "cmd:" <> t
 cmdT (CompoundCmd e a) = "exec:" <> pack e <> ":" <> tshow a
+cmdT NoCmd = "pass"
 
 -- | A parser that tries to extract a 'Cmd' from 'Text'
 --
@@ -60,6 +62,7 @@ cmdP :: Parser Cmd
 cmdP = choice
   [ string "cmd:" *> (SimpleCmd <$> takeRest)
   , string "exec:" *> (CompoundCmd <$> exe <*> args)
+  , string "pass:" $> NoCmd
   ]
   where
     exe = unpack <$> takeWhile1P Nothing (/= ':') <* char ':'
