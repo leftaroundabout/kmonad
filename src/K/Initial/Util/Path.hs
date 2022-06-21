@@ -1,8 +1,13 @@
 -- |
 
-module K.Initial.Util.Path where
+module K.Initial.Util.Path
+  ( PathRoot(..)
+  , Path(..)
+  , PathError
+  , resolve
+  )
+where
 
-import K.Initial.Initial
 import K.Initial.Util.Initial
 
 import RIO.FilePath ((</>))

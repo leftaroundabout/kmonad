@@ -52,6 +52,7 @@ library
     , raw-strings-qq
     , resourcet
     , rio
+    , rio-orphans
     , time
     , unliftio
     , template-haskell

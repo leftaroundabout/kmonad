@@ -1,4 +1,10 @@
--- | A collection of general parsing definitions
+{- | TODO: insert header
+
+The 'K.Initial.Parsing' module functions as an alternative Prelude to be used
+for submodules that implement parsers. As such, it reexports most of
+'K.Initial', plus extra parsing definitions.
+
+-}
 module K.Initial.Parsing
   ( Parser
   , ParserT
@@ -22,15 +28,16 @@ module K.Initial.Parsing
   , namedP
 
   , module K.Initial.Initial
+  , module K.Initial.Util
   , module Text.Megaparsec
   , module Text.Megaparsec.Char
   )
 where
 
-import K.Initial.Initial hiding (try, noneOf)
+import K.Initial.Initial
 import K.Initial.Util
 
-import Text.Megaparsec hiding (ParseError, parse)
+import Text.Megaparsec hiding (ParseError, parse, noneOf)
 import Text.Megaparsec.Char
 
 import qualified Text.Megaparsec.Char.Lexer as X

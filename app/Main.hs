@@ -15,20 +15,25 @@ module Main
   )
 where
 
-import qualified KMonad.App as KMonad (main)
-
-import System.IO
-import KMonad.Prelude
--- import KMonad.App.Cfg.Invoc (getInvoc)
-import KMonad.App.Cfg.InvocNew
-import KMonad.App.Cfg.Cfgable
-import KMonad.App.Cfg.Default
-
--- main :: IO ()
--- main = KMonad.main
+import K (begin)
 
 main :: IO ()
-main = do
-  ivk <- getInvoc
-  pPrint $ ivk^.cfgChange.notes
-  pPrint $ runChange (ivk^.cfgChange.change) defAppCfg
+main = begin
+
+-- import qualified KMonad.App as KMonad (main)
+
+-- import System.IO
+-- import KMonad.Prelude
+-- -- import KMonad.App.Cfg.Invoc (getInvoc)
+-- import KMonad.App.Cfg.InvocNew
+-- import KMonad.App.Cfg.Cfgable
+-- import KMonad.App.Cfg.Default
+
+-- -- main :: IO ()
+-- -- main = KMonad.main
+
+-- main :: IO ()
+-- main = do
+--   ivk <- getInvoc
+--   pPrint $ ivk^.cfgChange.notes
+--   pPrint $ runChange (ivk^.cfgChange.change) defAppCfg

@@ -1,6 +1,12 @@
 -- |
 
-module K.Keyboard.Initial where
+module K.Keyboard.Initial
+  ( Keycode
+
+  , module K.Initial
+  )
+
+where
 
 import K.Initial
 

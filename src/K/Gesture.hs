@@ -1,6 +1,6 @@
 -- |
 
-module K.Keyboard.Gesture
+module K.Gesture
   ( -- * Basic types
     Gesture
   , GestureError(..)
@@ -19,7 +19,7 @@ module K.Keyboard.Gesture
   )
 where
 
-import K.Initial hiding (try)
+import K.Initial
 import K.Initial.Parsing
 
 import Control.Monad.Except
