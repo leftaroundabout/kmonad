@@ -18,7 +18,6 @@ module K.Initial.Util.Name
 
 where
 
-import K.Initial.Initial
 import K.Initial.Util.Initial
 
 import qualified RIO.List as L
@@ -28,10 +27,10 @@ import qualified Control.Exception.Lens as Exc
 
 -- basic types -----------------------------------------------------------------
 
-type Name = Text           -- ^ Text in its function as a name
-type Names = [Name]        -- ^ Multiple names
-type Named a = [(Name, a)] -- ^ An a-list of name-value pairs
-type NameMap a = M.HashMap Name a
+type Name = Text                  -- ^ Text in its function as a name
+type Names = [Name]               -- ^ Multiple names
+type Named a = [(Name, a)]        -- ^ An a-list of name-value pairs
+type NameMap a = M.HashMap Name a -- ^ A hashmap of named things
 
 -- errors ----------------------------------------------------------------------
 

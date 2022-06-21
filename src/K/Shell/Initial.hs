@@ -1,8 +1,20 @@
 -- |
 
-module K.Shell.Initial where
+module K.Shell.Initial
+  ( RunType(..)
+  , CmdAllow(..)
+  , DelayRate(..)
 
-import K.Prelude
+  , module K.Initial
+  , module K.Gesture
+  , module K.Keyboard
+  )
+
+where
+
+import K.Initial
+import K.Gesture
+import K.Keyboard
 
 -- basic types -----------------------------------------------------------------
 

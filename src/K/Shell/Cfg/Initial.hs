@@ -1,10 +1,38 @@
 -- |
 
-module K.Shell.Cfg.Initial where
+module K.Shell.Cfg.Initial
+  ( -- * Configuration data
+    -- ** Configuration ADTs
+    -- $vals
+    KeyInputCfg(..)
+  , KeyOutputCfg(..)
+  , KeyRepeatCfg(..)
 
-import K.Prelude
+    -- ** Configuration records
+    -- $recs
+  , LocaleCfg(..)
+  , RunCfg(..)
+  , KioCfg(..)
+  , LogCfg(..)
+  , AppCfg(..)
+
+    -- * Lenses
+    -- $lens
+  , HasLocaleCfg(..)
+  , HasLogCfg(..)
+  , HasKioCfg(..)
+  , HasRunCfg(..)
+  , HasAppCfg(..)
+
+    -- * Default
+    -- $def
+  , defAppCfg
+
+    -- * Reexports
+  , module K.Shell.Initial
+) where
+
 import K.Shell.Initial
-import K.Keyboard.Gesture
 
 import qualified RIO.HashMap as M
 
