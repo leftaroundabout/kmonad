@@ -1,6 +1,6 @@
 -- |
 
-module KMonad.Gesture
+module K.Keyboard.Gesture
   ( -- * Basic types
     Gesture
   , GestureError(..)
@@ -19,8 +19,8 @@ module KMonad.Gesture
   )
 where
 
-import KMonad.Prelude hiding (try)
-import KMonad.Prelude.Parsing
+import K.Initial hiding (try)
+import K.Initial.Parsing
 
 import Control.Monad.Except
 import Control.Monad.State

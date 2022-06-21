@@ -1,11 +1,13 @@
 -- |
 
-module KMonad.App.Cfg.Cfgable where
+module K.Shell.Cfg.Cfgable where
+-- |
 
-import KMonad.Prelude
-import KMonad.Prelude.Parsing (ParseError)
-import KMonad.App.Cfg.Types
-import KMonad.App.Cfg.Expr
+
+import K.Initial
+import K.Initial.Parsing (ParseError)
+import K.Shell.Cfg.Initial
+import K.Shell.Cfg.Expr
 
 import Data.Monoid
 

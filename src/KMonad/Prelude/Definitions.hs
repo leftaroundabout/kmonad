@@ -25,6 +25,8 @@ where
 
 import KMonad.Prelude.Imports
 
+import Control.Monad.Except
+
 import qualified RIO.List     as L
 import qualified RIO.Text     as T
 
@@ -72,7 +74,7 @@ instance Show NameError where
     <> (unpack . T.intercalate ", " . map tshow $ ns)
 
 instance Exception NameError
-instance AsNameError SomeException where _NameError = exception
+-- instance AsNameError SomeException where _NameError = exception
 
 class HasName a where name :: Lens' a Name
 class HasNames a where names :: Fold a Name
@@ -87,13 +89,28 @@ instance HasNames (Named a) where names = folded . _1
 -- A collection of names can be broken if:
 -- - Any of the names is ""
 -- - Any of the names are duplicates
-checkNames :: HasNames a => a -> Maybe NameError
-checkNames a = let ns = a^..names in case L.find T.null ns of
-  Just _  -> Just EmptyName
-  Nothing -> DuplicateNames <$> duplicates ns
+-- checkNames :: HasNames a => a -> Either NameError ()
+-- checkNames a = let ns = a^..names in case L.find T.null ns of
+--   Just _  -> Left EmptyName
+--   Nothing -> case duplicates ns of
+--     Just ds -> Left $ DuplicateNames ds
+--     Nothing -> Right ()
+
+onJust :: Monad m => Maybe a -> (a -> m b) -> m ()
+onJust m f = maybe (pure ()) (void . f) m
+
+checkNames :: (MonadError e m, AsNameError e, HasNames a) => a -> m ()
+checkNames a = do
+  let ns = a^..names
+  onJust (L.find T.null ns) $ \_ -> throwError $ _EmptyName # ()
+  onJust (duplicates ns)    $ \d -> throwError $ _DuplicateNames # d
+
+  -- Nothing -> case duplicates ns of
+  --   Just ds -> Left $ _DuplicateNames # ds
+  --   Nothing -> Right ()
 
 -- | Like `checkNames` but throws the error if encountered
-checkNamesThrow :: HasNames a => a -> a
+checkNamesThrow :: (MonadError e m, AsNameError e) => HasNames a => a -> m a
 checkNamesThrow = validate _NameError checkNames
 
 -- | Do a reverse-lookup for the name of some item
@@ -103,13 +120,13 @@ nameFor v = lookup v . map (view swapped)
 --------------------------------------------------------------------------------
 
 -- | Throw some error if a validator finds a problem with some value
-validate :: ()
-  => AReview SomeException b -- ^ Prism from concrete error to exception
-  -> (a -> Maybe b)          -- ^ Function that tries to find a problem in `a`
-  -> a                       -- ^ The value of `a` to check
-  -> a                       -- ^ The same value if no error is found
-validate p f a = maybe a (throwing p) . f $ a
+validate :: (MonadError e m)
+  => AReview e t       -- ^ Prism from concrete error to exception
+  -> (a -> Either t b) -- ^ Function that tries to find a problem in `a`
+  -> a                 -- ^ The value of `a` to check
+  -> m a               -- ^ The same value if no error is found
+validate p f a = either (throwing p) (pure . const a) . f $ a
 
--- | Use a prism to 'SomeException' to either throw an error or return success.
-throwEither :: AReview SomeException e -> Either e a -> a
-throwEither p = either (throwing p) id
+-- | Either throw some error using a prism or return a pure value.
+throwEither :: (MonadError e m) => AReview e t -> Either t a -> m a
+throwEither l = either (throwing l) pure

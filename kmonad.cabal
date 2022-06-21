@@ -87,7 +87,6 @@ library
       KMonad.App.Cfg.Expr.Logging
       KMonad.App.Cfg.Expr.Path
       KMonad.App.Cfg.Invoc
-      KMonad.App.Cfg.InvocNew
       KMonad.App.Cfg.Types
       KMonad.App.Main
       KMonad.App.Types

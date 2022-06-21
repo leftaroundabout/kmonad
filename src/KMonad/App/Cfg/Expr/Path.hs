@@ -39,7 +39,7 @@ instance Show PathExprError where
     ] <> fs
 
 instance Exception PathExprError
-instance AsPathExprError SomeException where _PathExprError = exception
+-- instance AsPathExprError SomeException where _PathExprError = exception
 
 -- basic ops -------------------------------------------------------------------
 
@@ -66,24 +66,20 @@ resolve p = do
     fs  -> throwIO $ GlobMultipleMatches r fs
 
 -- | An 'Expr Path' with configurable extra directories
-pathExprWith :: Named PathRoot -> Expr Path
+pathExprWith :: (AsPathExprError e) => Named PathRoot -> Expr e Path
 pathExprWith nr = Expr (pathT nr) (parse (pathP nr)) _PathParseError
 
 -- | An 'Expr Path' with configurable extra directories
-pathExpr :: Expr Path
+pathExpr :: (AsPathExprError e) => Expr e Path
 pathExpr = pathExprWith []
 
 -- | An Iso between Text and Path with configurable extra directories
-_PathExprWith :: Named PathRoot -> Iso' Path Text
-_PathExprWith nr = exprIso $ pathExprWith nr
+-- _PathExprWith :: Named PathRoot -> Iso' Path Text
+-- _PathExprWith nr = exprIso $ pathExprWith nr
 
--- | An Iso between Text and Path
-_PathExpr ::  Iso' Path Text
-_PathExpr = _PathExprWith []
-
--- | Try to read a 'Path' value from some text
-readPath :: Text -> Either ParseError Path
-readPath = parse (pathP [])
+-- -- | An Iso between Text and Path
+-- _PathExpr ::  Iso' Path Text
+-- _PathExpr = _PathExprWith []
 
 -- exprs -----------------------------------------------------------------------
 
