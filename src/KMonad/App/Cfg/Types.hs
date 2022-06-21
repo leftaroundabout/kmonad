@@ -1,4 +1,3 @@
-{-# LANGUAGE DeriveAnyClass #-}
 module KMonad.App.Cfg.Types where
 
 
@@ -13,12 +12,9 @@ import KMonad.Keyboard.Types (DelayRate(..))
 
 import System.IO
 
-import Data.Either.Validation (Validation(..))
-import GHC.Generics (Generic)
 
 import qualified RIO.HashMap as M
 import qualified RIO.Text as T
-import qualified Dhall as D
 
 --------------------------------------------------------------------------------
 
@@ -132,43 +128,7 @@ instance HasLogCfg AppCfg where logCfg = appLogCfg
 instance HasKioCfg AppCfg where kioCfg = appKioCfg
 instance HasRunCfg AppCfg where runCfg = appRunCfg
 
--- invoc  ----------------------------------------------------------------------
-
-data Invoc = Invoc
-  { _irunType :: RunType
-  , _icfgFile :: Maybe FileSpec
-  , _ikeymapFile :: Maybe FileSpec
-  , _ifallthrough :: Maybe Bool
-  , _icmdAllow :: Maybe Bool
-  , _ilogLevel :: Maybe LogLevelSpec
-  , _ikeyRepeat :: Maybe KeyRepeatSpec
-  , _ikeyInputCfg :: Maybe KeyInputSpec
-  , _ikeyOutputCfg :: Maybe KeyOutputSpec
-  , _ipreKioCmd :: Maybe CmdSpec
-  , _ipostKioCmd :: Maybe CmdSpec
-  } deriving (Eq, Show)
-makeClassy ''Invoc
-
-defCfgFile :: FileSpec
-defCfgFile = "cfg:kmonad.dhall"
-
 -- dhall -----------------------------------------------------------------------
-
-data DEntry k v = DEntry
-  { _mapKey :: k
-  , _mapValue :: v
-  } deriving (Generic, D.FromDhall, Show)
-makeLenses ''DEntry
-
-type DMap k v= [DEntry k v]
-
--- _Tuple :: Iso' (DEntry k v) (k, v)
--- _Tuple = iso (\e -> (e^.mapKey, e^.mapValue)) $ uncurry DEntry
-
-
--- | Use '_DMap' as a view of an alist as a DMap, and 'from _DMap' as its inverse
-_DMap :: Iso' [(k, v)] (DMap k v)
-_DMap = iso (map $ uncurry DEntry) (map $ view mapKey &&& view mapValue)
 
 -- | The settings that we want to expose to Dhall
 --

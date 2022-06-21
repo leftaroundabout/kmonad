@@ -10,15 +10,18 @@ import KMonad.App.Cfg.Types
 -- expr ------------------------------------------------------------------------
 
 -- | An 'Expr' describing the relationship between 'Text' and some value
-data Expr a = Expr
+data Expr e a = Expr
   { _toText :: a -> Text                          -- ^ How to encode a value to text
   , _fromText :: Text -> Either ParseError a      -- ^ How to decode a value from text
-  , _errPrism :: AReview SomeException ParseError -- ^ How to render a decoding error
+  , _errPrism :: AReview e ParseError -- ^ How to render a decoding error
   }
 makeLenses ''Expr
 
-exprIso :: Expr a -> Iso' a Text
-exprIso x = iso (x^.toText) $ \t -> throwEither (x^.errPrism) (x^.fromText $ t)
+encode :: Expr e a -> a -> Text
+encode = view toText
+
+decode :: MonadError e m => Expr e a -> Text -> m a
+decode e t = throwEither (e^.errPrism) (e^.fromText $ t)
 
 -- named-expr types ------------------------------------------------------------
 
@@ -30,9 +33,9 @@ instance Show NamedExprError where
     "Parse error in Named expression:\n" <> show e
 
 instance Exception NamedExprError
-instance AsNamedExprError SomeException where _NamedExprError = exception
+-- instance AsNamedExprError SomeException where _NamedExprError = exception
 
-namedExpr :: Eq a => Named a -> Expr a
+namedExpr :: (AsNamedExprError e, Eq a) => Named a -> Expr e a
 namedExpr ns = Expr nameFor' (parse $ namedP ns) _NamedParseError
   where
     nameFor' a = fromMaybe (error msg) $ nameFor a ns
@@ -40,15 +43,15 @@ namedExpr ns = Expr nameFor' (parse $ namedP ns) _NamedParseError
 
 -- named-expr vals -------------------------------------------------------------
 
-boolExpr :: Expr Bool
+boolExpr :: (AsNamedExprError e) => Expr e Bool
 boolExpr = namedExpr [("off", False), ("on", True)]
 
-runTypeExpr :: Expr RunType
+runTypeExpr :: (AsNamedExprError e) => Expr e RunType
 runTypeExpr = namedExpr [("run", FullRun), ("test", CfgTest), ("discover", EvTest)]
 
-logLevelExpr :: Expr LogLevel
+logLevelExpr :: (AsNamedExprError e) => Expr e LogLevel
 logLevelExpr = namedExpr [ ("error", LevelError), ("warn", LevelWarn)
                          , ("info", LevelInfo), ("debug", LevelDebug) ]
 
-cmdAllowExpr :: Expr CmdAllow
+cmdAllowExpr :: (AsNamedExprError e) => Expr e CmdAllow
 cmdAllowExpr = namedExpr [("none", NoCmds), ("init", InitCmds), ("all", AllCmds)]

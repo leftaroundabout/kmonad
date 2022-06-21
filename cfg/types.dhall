@@ -1,19 +1,33 @@
-let CodeNames = List { mapKey : Text, mapValue : Natural }
+let Keycode = Natural
 
-let GestureNames = List { mapKey : Text, mapValue : Text }
+let Gesture = Text
 
-let KCfg =
-      { codeNames : CodeNames
-      , gestureNames : GestureNames
-      , fallthrough : Bool
-      , cmdAllow : Bool
-      , logLevel : Text
-      , keyInputCfg : Text
-      , keyOutputCfg : Text
-      , keymapFile : Text
-      , keyRepeat : Optional Text
-      , preKioCmd : Optional Text
-      , postKioCmd : Optional Text
+let Option = Text
+
+let Flag = Text
+
+let Keycodes = List { mapKey : Text, mapValue : Keycode }
+
+let Gestures = List { mapKey : Text, mapValue : Gesture }
+
+let Options = List { mapKey : Text, mapValue : Option }
+
+let Flags = List Flag
+
+let CfgFile =
+      { keycodes : Keycodes
+      , gestures : Gestures
+      , options : Options
+      , flags : Flags
       }
 
-in  { KCfg, CodeNames, GestureNames }
+in  { Keycode
+    , Gesture
+    , Option
+    , Flag
+    , Keycodes
+    , Gestures
+    , Options
+    , Flags
+    , CfgFile
+    }

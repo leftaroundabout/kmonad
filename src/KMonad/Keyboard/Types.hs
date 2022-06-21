@@ -15,6 +15,7 @@ import KMonad.Prelude
 import KMonad.Keyboard.Keycode
 
 import qualified KMonad.Util.LayerStack as Ls
+
 --------------------------------------------------------------------------------
 
 data DelayRate = DelayRate

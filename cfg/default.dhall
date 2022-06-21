@@ -2,28 +2,16 @@ let T = ./types.dhall
 
 let L = ./locale/linux/enUS.dhall
 
-let base =
-      { logLevel = "warn"
-      , keymapFile = "cfg:keymap.kbd"
-      , cmdAllow = False
-      , fallthrough = False
-      , keyRepeat = None Text
-      , preKioCmd = None Text
-      , postKioCmd = None Text
-      }
+let empty =
+        { keycodes = [] : T.Keycodes
+        , gestures = [] : T.Gestures
+        , options = [] : T.Options
+        , flags = [] : T.Flags
+        }
+      : T.CfgFile
 
-let linux = base //
-      { codeNames = L.numbers # (toMap L.codenames) : T.CodeNames
-      , gestureNames = [] : T.GestureNames
-      , keyInputCfg = "evdev:glob:/dev/input/by-id/*kbd"
-      , keyOutputCfg = "uinput:KMonad"
-      } : T.KCfg
+let linux =
+        empty // { keycodes = L.numbers # toMap L.codenames : T.Keycodes }
+      : T.CfgFile
 
-let windows = base //
-      { codeNames = L.numbers # (toMap L.codenames) : T.CodeNames
-      , gestureNames = [] : T.GestureNames
-      , keyInputCfg = "hook:"
-      , keyOutputCfg = "send:"
-      } : T.KCfg
-
-in { linux, windows }
+in  { linux, empty }

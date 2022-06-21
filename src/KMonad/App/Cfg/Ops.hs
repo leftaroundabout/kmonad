@@ -35,20 +35,9 @@ loadDhallCfg mf = do
   liftIO $ D.inputFile dec pth
 
 --------------------------------------------------------------------------------
+
 type Keycode = Natural
 
-
-data LocaleError
-  = BadCodeNames NameError
-  | BadGestureNames NameError
-  | OverlappingNames [Name]
-  | LocaleParseError ParseError
-  | LocaleGestureError [GestureReadError]
-  | MissingKeyname [Name]
-  deriving (Eq, Show)
-makeClassyPrisms ''LocaleError
-instance Exception LocaleError
-instance AsLocaleError SomeException where _LocaleError = exception
 
 --------------------------------------------------------------------------------
 
@@ -76,39 +65,7 @@ getS d i = view (cfgEnv.invoc.i) >>= \case
 
 --------------------------------------------------------------------------------
 
--- | Try to translate the contents of a traversable, on error return failing key
---
--- This is a very general way of writing code that goes into a Gesture and
--- performs the (Name -> Keycode) mapping.
---
--- A more concrete way of writing this signature would be:
---
--- coded :: (Name -> Maybe Keycode) -> Gesture Name -> Either Name (Gesture Keycode)
---
-coded :: Traversable t => (b -> Maybe a) -> t b -> Either b (t a)
-coded f x = sequence $ (\n -> maybe (Left n) Right (f n)) <$> x
 
--- | Contruct a valid LocaleCfg or return an error detailing an issue.
-mkLocale :: Named Keycode -> Named GestureExpr -> Either LocaleError LocaleCfg
-mkLocale cl gl = do
-  -- Check for duplicates and overlapping names
-  let _ = validate (_BadCodeNames._NameError) checkNames cl
-  let _ = validate (_BadGestureNames._NameError) checkNames gl
-  let _ = validate _OverlappingNames duplicates $ (cl^..names) <> (gl^..names)
-
-  -- Create the keycode map (required for gesture finalization)
-  let codes = M.fromList cl
-
-  -- Check for valid gesture structure
-  let (e1, gtxt) = partitionEithers . map readGesture $ gl^..folded._2
-  unless (L.null e1) $ throwing _LocaleGestureError e1
-
-  -- Check that gestures only refer to existing keynames
-  let (e2, gcode) = partitionEithers . over mapped (coded (`M.lookup` codes)) $ gtxt
-  unless (L.null e2) $ throwing _MissingKeyname e2
-
-  -- Put it all together
-  Right . LocaleCfg codes . M.fromList . zip (gl^..folded._1) $ gcode
 
 data CfgError
   = CfgLocaleError LocaleError

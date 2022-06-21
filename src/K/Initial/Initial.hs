@@ -1,6 +1,6 @@
-{-# OPTIONS_GHC -Wno-dodgy-imports #-}
+-- |
 
-module KMonad.Prelude.Imports
+module K.Initial.Initial
   ( module X )
 where
 

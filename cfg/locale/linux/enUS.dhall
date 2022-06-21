@@ -251,6 +251,6 @@ let numbers =
         , f "9" 10
         , f "0" 11
         ]
-      : T.CodeNames
+      : T.Keycodes
 
 in  { codenames, numbers }
