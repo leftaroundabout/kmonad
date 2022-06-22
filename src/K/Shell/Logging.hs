@@ -20,5 +20,7 @@ instance HasLogFunc LogEnv where logFuncL = logfun
 
 -- ops -------------------------------------------------------------------------
 
-initLogging :: HasLogCfg cfg => cfg -> (LogEnv -> m a) -> m a
-initLogging = undefined
+initLogging :: (MonadUnliftIO m, HasLogCfg cfg) => cfg -> (LogEnv -> m a) -> m a
+initLogging c f = do
+  o <- logOptionsHandle stdout False <&> setLogMinLevel (c^.logLevel)
+  withLogFunc o $ f . LogEnv

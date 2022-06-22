@@ -71,8 +71,8 @@ instance HasNamed (NameMap a) a where named = to M.toList
 checkNames :: (MonadError e m, AsNameError e, HasNames a) => a -> m ()
 checkNames a = do
   let ns = a^..names
-  whenJust (L.find T.null ns) $ \_ -> throwError $ _EmptyName # ()
-  whenJust (duplicates ns)    $ \d -> throwError $ _DuplicateNames # d
+  whenJust (L.find T.null ns)  $ \_ -> throwError $ _EmptyName # ()
+  whenNonEmpty (duplicates ns) $ \d -> throwError $ _DuplicateNames # d
 
 -- | Do a reverse-lookup for the name of some item
 nameFor :: (HasNamed s a, Eq a) => a -> s -> Maybe Name

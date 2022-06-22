@@ -1,9 +1,8 @@
 {- | TODO: insert header
 
-The 'K.Initial.Parsing' module functions as an alternative Prelude to be used
-for submodules that implement parsers. As such, it reexports most of
-'K.Initial', plus extra parsing definitions.
-
+The 'K.Initial.Parsing' module adds various parsing tools to the basic Prelude.
+This submodule should not be reexported from 'K.Initial', as many modules do not
+deal with parsing. Consider this an additional parsing Prelude.
 -}
 module K.Initial.Parsing
   ( Parser
@@ -27,8 +26,6 @@ module K.Initial.Parsing
   , maybeRestP
   , namedP
 
-  , module K.Initial.Initial
-  , module K.Initial.Util
   , module Text.Megaparsec
   , module Text.Megaparsec.Char
   )

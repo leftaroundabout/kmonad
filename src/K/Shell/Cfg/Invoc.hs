@@ -1,14 +1,16 @@
 {-# LANGUAGE QuasiQuotes #-}
 -- |
 
-module KMonad.App.Cfg.Invoc where
+module K.Shell.Cfg.Invoc where
 
-import KMonad.Prelude
-import qualified KMonad.Prelude.Parsing as P (_ParseError, ParseError)
+import K.Initial.Parsing
+import K.Shell.Cfg.Initial
+import K.Shell.Cfg.Cfgable
 
-import KMonad.App.Cfg.Types hiding (Invoc, HasInvoc(..))
-import KMonad.App.Cfg.Cfgable hiding (option, flag)
-import KMonad.App.Cfg.Default
+-- import qualified KMonad.Prelude.Parsing as P (_ParseError, ParseError)
+-- import KMonad.App.Cfg.Types hiding (Invoc, HasInvoc(..))
+-- import KMonad.App.Cfg.Cfgable hiding (option, flag)
+-- import KMonad.App.Cfg.Default
 
 
 -- Imports required to add versioner to command

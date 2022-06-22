@@ -3,6 +3,7 @@
 module K.Initial.Util.Path
   ( PathRoot(..)
   , Path(..)
+  , HasPath(..)
   , PathError
   , resolve
   )
@@ -21,7 +22,7 @@ import qualified RIO as S (unlines)
 
 -- | Root directories we know how to search
 data PathRoot
-  = XdgCfg FilePath -- ^ Some directory relative to XdgConfig
+  = XdgCfg          -- ^ "kmonad" subdirectory relative to XdgConfig
   | Home            -- ^ Home directory
   | Custom FilePath -- ^ Any other path-prefix, may contain globs
   deriving (Eq, Show)
@@ -32,7 +33,7 @@ data Path = Path
   , _root   :: Maybe PathRoot -- ^ Optionally a path to be relative to
   , _doGlob :: Bool           -- ^ Whether to glob-match this expression
   } deriving (Eq, Show)
-makeLenses ''Path
+makeClassy ''Path
 
 -- errors ----------------------------------------------------------------------
 
@@ -61,7 +62,7 @@ resolve p = do
   -- Construct the root
   r <- (</> (unpack $ p^.val)) <$> case p^.root of
     Nothing         -> pure ""
-    Just (XdgCfg f) -> getXdgDirectory XdgConfig f
+    Just XdgCfg     -> getXdgDirectory XdgConfig "kmonad"
     Just Home       -> getHomeDirectory
     Just (Custom f) -> pure f
 

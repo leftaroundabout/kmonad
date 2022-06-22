@@ -11,11 +11,13 @@ module K.Initial.Util.Initial
     -- * Helpers
     -- $help
   , whenJust
+  , whenNonEmpty
   , ifM
   , duplicates
   , inRIO
-  --, throwEither
-  --, validate
+
+  , throwEither
+  , devFail
 
     -- * Reexports
   , module K.Initial.Initial
@@ -25,6 +27,7 @@ where
 import K.Initial.Initial
 
 import qualified RIO.List     as L
+import qualified Control.Monad.Error.Lens as Err
 
 -- length of time --------------------------------------------------------------
 
@@ -43,6 +46,11 @@ ms = iso (view $ us . to (`div` 1000)) (Dt . (* 1000))
 whenJust :: Monad m => Maybe a -> (a -> m b) -> m ()
 whenJust m f = maybe (pure ()) (void . f) m
 
+-- | Conditionally call a monadic function on a list, only when non-empty
+whenNonEmpty :: Monad m => [a] -> ([a] -> m b) -> m ()
+whenNonEmpty [] _ = pure ()
+whenNonEmpty xs f = void . f $ xs
+
 -- | Monadic if statement
 ifM :: Monad m
   => m Bool -- ^ Monadic action yielding decision
@@ -56,24 +64,22 @@ ifM b x y = b >>= bool y x
 -- | Return a list of duplicate elements
 --
 -- This is slow and should not be used for time-critical tasks.
-duplicates :: Eq a => [a] -> Maybe [a]
-duplicates l = case (L.\\) l $ L.nub l of
-  [] -> Nothing
-  x  -> Just x
+duplicates :: Eq a => [a] -> [a]
+duplicates l = (L.\\) l $ L.nub l
 
 -- error helpers ---------------------------------------------------------------
 
--- | Throw some error if a validator finds a problem with some value
-validate :: (MonadError e m)
-  => AReview e t       -- ^ Prism from concrete error to exception
-  -> (a -> Either t b) -- ^ Function that tries to find a problem in `a`
-  -> a                 -- ^ The value of `a` to check
-  -> m a               -- ^ The same value if no error is found
-validate l f a = throwEither l . fmap (const a) $ f a
-
 -- | Either throw some error using a prism or return a pure value.
 throwEither :: (MonadError e m) => AReview e t -> Either t a -> m a
-throwEither l = either (throwing l) pure
+throwEither l = either (Err.throwing l) pure
+
+-- | Signal programmer mistake with issue-submission instructions.
+devFail :: Text -> a
+devFail t = error $ msg <> unpack t
+  where msg = strUnlines
+          [ "\nEncountered programmer error. This code should be unreachable. "
+          , "Please let us know at https://github.com/kmonad/kmonad/issues "
+          , "and include the following text in your submission:" ]
 
 -- context helpers -------------------------------------------------------------
 
