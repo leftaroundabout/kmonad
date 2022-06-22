@@ -16,11 +16,14 @@ import qualified Control.Exception.Lens as Exc
 
 begin :: IO ()
 begin = do
-  initLogging defAppCfg $ inRIO $ do
+  initLogging defAppCfg . inRIO $ do
 
+    -- Final exception-catching mechanism in KMonad
     let handle err = do
-          logError "Encountered unhandled, top-level error. Exiting:\n"
-          throwing err
+          Exc.throwing _AppError err
 
-    Exc.handling _AppError (\_ -> pure ()) $ do
+    Exc.handling _AppError handle $ do
+      ivk <- getInvoc
+
       logInfo "Hello sailor!"
+      Exc.throwing _Monkeys ()

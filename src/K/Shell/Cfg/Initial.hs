@@ -138,8 +138,8 @@ defAppCfg = AppCfg
     , _postKioCmd = PassCmd
     }
   , _appRunCfg = RunCfg
-    { _cfgPath = Path "cfg.dhall" (Just $ XdgCfg "kmonad") False
-    , _kbdPath = Path "keymap.kbd" (Just $ XdgCfg "kmonad") False
+    { _cfgPath = Path "cfg.dhall" (Just XdgCfg) False
+    , _kbdPath = Path "keymap.kbd" (Just XdgCfg) False
     , _cmdAllow = NoCmds
     , _runType = FullRun
     }

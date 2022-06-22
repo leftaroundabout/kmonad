@@ -12,17 +12,20 @@ code in this module that is not an import. Any definitions can live in
 
 -}
 module K.Initial.Initial
-  ( module X )
+  ( module X
+  , strUnlines
+  , _SomeException
+  )
 where
 
 import Control.Arrow            as X (left, right)
-import Control.Monad.Error.Lens as X
 import Control.Lens             as X
 import Control.Monad.Cont       as X
 import Control.Monad.Except     as X
 import Data.Acquire             as X
 import GHC.Conc                 as X (orElse)
 import RIO.Text                 as X (unlines, lines, unpack, pack)
+import RIO.Orphans              as X
 import Text.Pretty.Simple       as X (pPrint, pShow)
 
 import RIO as X hiding
@@ -46,3 +49,14 @@ import RIO as X hiding
     -- Often conflicts with 'try' from megaparsec
   , try
   )
+
+import qualified RIO as Q (unlines)
+import qualified Control.Exception.Lens as Q (exception)
+
+-- | Alias 'strUnlines' to standard unlines function
+strUnlines :: [String] -> String
+strUnlines = Q.unlines
+
+-- | Alias '_SomeException' to 'Control.Exception.Lens.exception'
+_SomeException :: Exception a => Prism' SomeException a
+_SomeException = Q.exception
