@@ -37,3 +37,4 @@ data DelayRate = DelayRate
   { _delay :: Dt -- ^ How long to wait before repeating starts
   , _rate  :: Dt -- ^ How long between each repeat event
   } deriving (Eq, Show)
+

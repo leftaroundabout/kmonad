@@ -8,22 +8,39 @@ where
 
 import K.Initial
 import K.Shell.Cfg
+import K.Shell.Env
 import K.Shell.Error
 import K.Shell.Logging
 
 import qualified Control.Exception.Lens as Exc
 
-
 begin :: IO ()
-begin = do
-  initLogging defAppCfg . inRIO $ do
+begin = handleAppError $ do
+  -- Get the invocation and apply its changes to the default config
+  ivk <- getInvoc
+  let ivkCfg = runChange (ivk^.cfgChange) defAppCfg
 
-    -- Final exception-catching mechanism in KMonad
-    let handle err = do
-          Exc.throwing _AppError err
+  -- Load the dhall configuration file and apply its changes to the ivkCfg
+  cfg <- loadCfgFile (ivkCfg^.cfgPath)
+  let chg = case validateCfgFile cfg :: Either CfgFileError (Change AppCfg) of
+        Left e -> Exc.throwing _CfgFileError e
+        Right x -> x
+  let cfgCfg = runChange chg ivkCfg
 
-    Exc.handling _AppError handle $ do
-      ivk <- getInvoc
+  -- Load the klang kbd-file
+  kbd <- loadKbdFile (cfgCfg^.kbdPath)
 
-      logInfo "Hello sailor!"
-      Exc.throwing _Monkeys ()
+  -- Initialize the AppEnv
+  withAppEnv $ \env -> inRIO loop
+
+loop :: RIO AppEnv ()
+loop = do
+  -- celebrate
+  Exc.throwing _Monkeys ()
+
+
+
+  -- pPrint $ ivk^.cfgChange.notes
+  -- pPrint $ runChange (ivk^.cfgChange) defAppCfg
+
+  -- logInfo "Hello sailor!"

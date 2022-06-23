@@ -91,7 +91,7 @@ mkOption n c t = Option (CfgTag n c t FromEither)
 
 -- | Create a function that sets some value using an 'Expr'
 setWithExpr :: Show a => Traversal' s a -> Expr a -> Name -> (Text -> Either ParseError (Change s))
-setWithExpr l e n t = case e^.fromText $ t of
+setWithExpr l e n t = case decode e t of
   Left err -> Left err
   Right a  -> Right $ setVal l a ("set " <> n <> " to " <> tshow a)
 

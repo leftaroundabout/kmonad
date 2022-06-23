@@ -15,6 +15,7 @@ module K.Initial.Util.Initial
   , ifM
   , duplicates
   , inRIO
+  , reportFail
 
   , throwEither
   , devFail
@@ -66,6 +67,15 @@ ifM b x y = b >>= bool y x
 -- This is slow and should not be used for time-critical tasks.
 duplicates :: Eq a => [a] -> [a]
 duplicates l = (L.\\) l $ L.nub l
+
+-- maybe helpers ---------------------------------------------------------------
+
+-- | Turn a function with failure into one that also reports the mistake
+--
+-- When mapping some @a -> Maybe b@ over some collection, using the 'reportFail'
+-- version of that function will let you easily extract the first failing value.
+reportFail :: (a -> Maybe b) -> (a -> Either a b)
+reportFail f a = maybe (Left a) Right $ f a
 
 -- error helpers ---------------------------------------------------------------
 

@@ -3,7 +3,7 @@
 
 module K.Shell.Cfg.Invoc where
 
-import K.Initial.Parsing
+import K.Initial.Parsing hiding (option)
 import K.Shell.Cfg.Initial
 import K.Shell.Cfg.Cfgable
 
@@ -12,24 +12,26 @@ import K.Shell.Cfg.Cfgable
 -- import KMonad.App.Cfg.Cfgable hiding (option, flag)
 -- import KMonad.App.Cfg.Default
 
-
+-- FIXME
 -- Imports required to add versioner to command
-import KMonad.Args.TH (gitHash)
-import Paths_kmonad (version)
-import Data.Version (showVersion)
+-- import KMonad.Args.TH (gitHash)
+-- import Paths_kmonad (version)
+-- import Data.Version (showVersion)
 
-import Options.Applicative
+import Options.Applicative hiding (Parser, flag, option)
 
 import Text.RawString.QQ
 import Text.PrettyPrint.ANSI.Leijen hiding ((<$>))
 import qualified Text.PrettyPrint.ANSI.Leijen as L
 
+import qualified Options.Applicative as O (Parser, flag, option)
 
 
-newtype Invoc = Invoc
-  { _cfgChange :: Change AppCfg
-  }
-makeClassy ''Invoc
+
+newtype Invoc = Invoc { _iCfgChange :: Change AppCfg }
+makeLenses ''Invoc
+
+instance HasCfgChange Invoc where cfgChange = iCfgChange
 
 -- help-text -------------------------------------------------------------------
 
@@ -63,36 +65,38 @@ getInvoc = liftIO . customExecParser (prefs showHelpOnEmpty) $
     <> header   "kmonad - an onion of buttons."
     )
 
+-- FIXME
 -- | Equip a parser with version information about the program
-versioner :: Parser (a -> a)
-versioner = infoOption (showVersion version <> ", commit " <> $(gitHash))
-  (  long "version"
-  <> short 'V'
-  <> help "Show version"
-  )
+versioner :: O.Parser (a -> a)
+versioner = pure id
+-- versioner = infoOption (showVersion version <> ", commit " <> $(gitHash))
+--   (  long "version"
+--   <> short 'V'
+--   <> help "Show version"
+--   )
 
 -- parsers ---------------------------------------------------------------------
 
 -- | Parse the entire invocation
-invocP :: Parser Invoc
+invocP :: O.Parser Invoc
 invocP = Invoc <$> appMods
 
 -- | Construct flags and options from 'appFlags' and 'appOptions'
-appMods :: Parser (Change AppCfg)
+appMods :: O.Parser (Change AppCfg)
 appMods = let f = filter (hasn't $ source._FromCfgFile) appFlags
               o = filter (hasn't $ source._FromCfgFile) appOptions
           in fmap mconcat . sequenceA $ map flagP f <> map optionP o
 
 -- | Turn 1 'AppFlag' into an optparse-applicative 'flag'
-flagP :: AppFlag -> Parser (Change AppCfg)
-flagP f = flag mempty (f^.change) $ mconcat
+flagP :: AppFlag -> O.Parser (Change AppCfg)
+flagP f = O.flag mempty (f^.change) $ mconcat
   [ long $ unpack (f^.longName)
   , help $ unpack (f^.doc)
   ] <> maybe mempty short (f^.shortName)
 
 -- | Turn 1 'AppOption' into an optparse-applicative 'option'
-optionP :: AppOption -> Parser (Change AppCfg)
-optionP o = option (eitherReader f) $ mconcat
+optionP :: AppOption -> O.Parser (Change AppCfg)
+optionP o = O.option (eitherReader f) $ mconcat
   [ long $ unpack (o^.longName)
   , help $ unpack (o^.doc)
   , value mempty
