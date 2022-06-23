@@ -7,6 +7,7 @@ module K.Initial.Util.Name
   , NameMap
 
   , NameError(..)
+  , AsNameError(..)
 
   , HasName(..)
   , HasNames(..)

@@ -42,12 +42,14 @@ library
     , cereal
     , dhall
     , either
+    , exceptions
     , Glob
     , hspec
     , lens
     , megaparsec
     , mtl
     , optparse-applicative
+    , ordered-containers
     , pretty-simple
     , raw-strings-qq
     , resourcet
@@ -84,12 +86,24 @@ library
       K.Initial.Util.Name
       K.Initial.Util.Path
       K.Gesture
+      K.Gesture.Initial
       K.Initial.Parsing
       K.Keyboard
       K.Keyboard.Initial
       K.Shell
       K.Shell.Cfg
+      K.Shell.Cfg.Cfgable
+      K.Shell.Cfg.CfgFile
+      K.Shell.Cfg.Invoc
       K.Shell.Cfg.Initial
+      K.Shell.Cfg.Expr
+      K.Shell.Cfg.Expr.Cmd
+      K.Shell.Cfg.Expr.Initial
+      K.Shell.Cfg.Expr.KeyInput
+      K.Shell.Cfg.Expr.KeyOutput
+      K.Shell.Cfg.Expr.KeyRepeat
+      K.Shell.Cfg.Expr.Path
+      K.Shell.Cfg.Expr.Toggles
       K.Shell.Error
       K.Shell.Initial
       K.Shell.Logging

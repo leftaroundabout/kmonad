@@ -51,7 +51,7 @@ data KeyInputCfg
 data KeyOutputCfg
   = LinUinputSnk (Maybe Text) -- ^ Linux uinput keyboard
   | WinSendSnk                -- ^ Windows SendEvent keyboard
-  | MacKextSink               -- ^ Mac Kext/Dext keyboard
+  | MacKextSnk                -- ^ Mac Kext/Dext keyboard
   | CmdSnk Cmd                -- ^ Write to stdin of some shell-command
   | StdoutSnk                 -- ^ Write directly to stdout
   deriving (Eq, Show)

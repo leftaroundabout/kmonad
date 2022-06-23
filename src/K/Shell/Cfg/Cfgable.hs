@@ -10,6 +10,9 @@ import K.Shell.Cfg.Initial
 import K.Shell.Cfg.Expr
 
 import Data.Monoid
+import Data.Foldable
+
+import qualified Control.Monad.Error.Lens as Err
 
 -- types -----------------------------------------------------------------------
 
@@ -92,16 +95,28 @@ mkOption :: ()
 mkOption n c t = Option (CfgTag n c t FromEither)
 
 -- | Create a function that sets some value using an 'Expr'
-setWithExpr :: Show a => Traversal' s a -> Expr a -> Name -> (Text -> Either ParseError (Change s))
-setWithExpr l e n t = case e^.fromText $ t of
-  Left err -> Left err
-  Right a  -> Right $ setVal l a ("set " <> n <> " to " <> tshow a)
+setWithExpr :: (Show a, MonadError e m, AsExprError e)
+  => Traversal' s a
+  -> Expr a
+  -> Name
+  -> (Text -> m (Change s))
+setWithExpr l e n t = case decode e t of
+  Left err -> Err.throwing __ExprError err
+  Right a  -> pure $ setVal l a ("set " <> n <> " to " <> tshow a)
 
+-- util ------------------------------------------------------------------------
+
+class HasCfgChange a where cfgChange :: Getter a (Change AppCfg)
+instance HasCfgChange (Change AppCfg) where cfgChange = id
+
+-- | Lookup a flag by its long name
+lookupLong :: (Foldable f, HasCfgTag a) => Name -> f a -> Maybe a
+lookupLong n = find (\f -> f^.longName == n)
 
 -- values ----------------------------------------------------------------------
 
 type AppFlag = Flag AppCfg
-type AppOption = Option ParseError AppCfg
+type AppOption = Option ExprError AppCfg
 
 appFlags :: [Flag AppCfg]
 appFlags =
@@ -114,7 +129,7 @@ appFlags =
       $ setVal logLevel LevelDebug "set logLevel to LevelDebug"
   ]
 
-appOptions :: [Option ParseError AppCfg]
+appOptions :: [Option ExprError AppCfg]
 appOptions =
   [ -- RunCfg ------------------------------------------------------------------
 

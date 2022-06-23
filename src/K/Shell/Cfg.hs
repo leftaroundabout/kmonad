@@ -14,3 +14,7 @@ of 1 file helps me maintain overview.
 module K.Shell.Cfg ( module X) where
 
 import K.Shell.Cfg.Initial as X
+import K.Shell.Cfg.Cfgable as X
+import K.Shell.Cfg.CfgFile as X
+import K.Shell.Cfg.Invoc   as X
+import K.Shell.Cfg.KbdFile as X

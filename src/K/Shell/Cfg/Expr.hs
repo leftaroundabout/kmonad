@@ -1,8 +1,41 @@
 -- |
 
-module K.Shell.Cfg.Expr where
+module K.Shell.Cfg.Expr
+  ( -- * Basic types and operations
+    Expr
+  , ExprError
+  , AsExprError(..)
+  , decode
+  , encode
+
+    -- * Simple expressions
+  , boolExpr
+  , runTypeExpr
+  , logLevelExpr
+  , cmdAllowExpr
+
+    -- * Complex expressions
+    -- ** Path
+  , module K.Shell.Cfg.Expr.Path
+    -- ** Cmd
+  , module K.Shell.Cfg.Expr.Cmd
+    -- ** KeyIO
+  , module K.Shell.Cfg.Expr.KeyInput
+  , module K.Shell.Cfg.Expr.KeyOutput
+  , module K.Shell.Cfg.Expr.KeyRepeat
+    -- ** Toggle sequences
+  , module K.Shell.Cfg.Expr.Toggles
+
+  )
+where
 
 import K.Shell.Cfg.Expr.Initial
+import K.Shell.Cfg.Expr.Cmd
+import K.Shell.Cfg.Expr.KeyInput
+import K.Shell.Cfg.Expr.KeyOutput
+import K.Shell.Cfg.Expr.KeyRepeat
+import K.Shell.Cfg.Expr.Path
+import K.Shell.Cfg.Expr.Toggles
 
 -- simple expressions ----------------------------------------------------------
 

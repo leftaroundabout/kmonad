@@ -3,6 +3,8 @@
 module K.Shell.Cfg.Expr.Initial
   ( ExprType
   , Expr
+  , HasExpr(..)
+  , Printer
   , ExprError
   , AsExprError(..)
 
@@ -31,13 +33,15 @@ import qualified Control.Monad.Error.Lens as Err
 -- | An informative name describing what an 'Expr' should evaluate to.
 type ExprType = Text
 
+type Printer a = a -> Text
+
 -- | An 'Expr', describing how some value gets encoded as raw text
 data Expr a = Expr
   { _exprType :: ExprType
-  , _toText :: a -> Text
-  , _fromText :: Text -> Either ParseError a
+  , _printer  :: Printer a
+  , _parser   :: Parser a --Text -> Either ParseError a
   }
-makeLenses ''Expr
+makeClassy ''Expr
 
 -- error -----------------------------------------------------------------------
 
@@ -57,11 +61,11 @@ instance AsExprError SomeException where __ExprError = _SomeException
 
 -- | Use an 'Expr' to render some value as 'Text'
 encode :: Expr a -> a -> Text
-encode = view toText
+encode = view printer
 
 -- | Use an 'Expr' to attempt to decode some value from 'Text'
 decode :: (AsExprError e, MonadError e m) => Expr a -> Text -> m a
-decode e t = case e^.fromText $ t of
+decode e t = case parse (e^.parser) t of
   Left err -> Err.throwing _ExprError (e^.exprType, t, err)
   Right a -> pure a
 
@@ -69,14 +73,14 @@ decode e t = case e^.fromText $ t of
 
 -- | Create an 'Expr' from an a list of named alternatives
 namedExpr :: Eq a => ExprType -> Named a -> Expr a
-namedExpr t ns = Expr t nameFor' (parse $ namedP ns)
+namedExpr t ns = Expr t nameFor' $ namedP ns
   where
     nameFor' a = fromMaybe (error msg) $ nameFor a ns
     msg = devFail "Name left unspecified in Expr: <" <> unpack t <> ">"
 
 -- | Create an 'Expr' from a printer and a parser.
-customExpr :: ExprType -> (a -> Text) -> Parser a -> Expr a
-customExpr t f p = Expr t f $ parse p
+customExpr :: ExprType -> Printer a -> Parser a -> Expr a
+customExpr = Expr
 
 -- parsers ---------------------------------------------------------------------
 
