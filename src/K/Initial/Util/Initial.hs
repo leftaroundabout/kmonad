@@ -2,15 +2,9 @@
 -- |
 
 module K.Initial.Util.Initial
-  ( -- * Length of time
-    -- $time
-    Dt
-  , us
-  , ms
-
-    -- * Helpers
+  ( -- * Helpers
     -- $help
-  , whenJust
+    whenJust
   , whenNonEmpty
   , ifM
   , duplicates
@@ -19,7 +13,9 @@ module K.Initial.Util.Initial
 
   , throwEither
   , devFail
+  , ffiErr
 
+  , fi
     -- * Reexports
   , module K.Initial.Initial
   )
@@ -30,16 +26,6 @@ import K.Initial.Initial
 import qualified RIO.List     as L
 import qualified Control.Monad.Error.Lens as Err
 
--- length of time --------------------------------------------------------------
-
--- | A duration of time encoded as some non-negative amount of microseconds
-newtype Dt = Dt { _us :: Natural }
-  deriving (Num, Eq, Ord, Show, Read, Generic)
-makeLenses ''Dt
-
--- | A lens between a non-negative amount of milliseconds and 'Dt'
-ms :: Iso' Dt Natural
-ms = iso (view $ us . to (`div` 1000)) (Dt . (* 1000))
 
 -- control flow ----------------------------------------------------------------
 
@@ -91,7 +77,21 @@ devFail t = error $ msg <> unpack t
           , "Please let us know at https://github.com/kmonad/kmonad/issues "
           , "and include the following text in your submission:" ]
 
+-- | If some monadic action returns -1, run some error action. Otherwise pure ()
+--
+-- Best used infix:
+-- >>> ffiCall `ffiError` throwStuff
+ffiErr :: (Integral i, Monad m) => m i -> m () -> m ()
+ffiErr go err = go >>= \case
+  (-1) -> err
+  _    -> pure ()
+
 -- context helpers -------------------------------------------------------------
 
 inRIO :: MonadIO m => RIO env a -> env -> m a
 inRIO = flip runRIO
+
+-- shorthand -------------------------------------------------------------------
+
+fi :: (Integral a, Num b) => a -> b
+fi = fromIntegral

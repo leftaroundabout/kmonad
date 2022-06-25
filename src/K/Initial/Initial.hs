@@ -20,7 +20,7 @@ where
 
 import Control.Arrow            as X (left, right)
 import Control.Lens             as X
-import Control.Monad.Cont       as X
+-- import Control.Monad.Cont       as X
 import Control.Monad.Except     as X
 import Data.Acquire             as X
 import GHC.Conc                 as X (orElse)
@@ -48,6 +48,12 @@ import RIO as X hiding
 
     -- Often conflicts with 'try' from megaparsec
   , try
+
+    -- We wrap our own logging API over RIO, so we free up some words
+  , log, logInfo, logError, logWarn, logDebug
+
+
+
   )
 
 import qualified RIO as Q (unlines)

@@ -7,6 +7,7 @@ module K.Shell.Cfg.Initial
     KeyInputCfg(..)
   , KeyOutputCfg(..)
   , KeyRepeatCfg(..)
+  , LogColor(..)
 
     -- ** Configuration records
     -- $recs
@@ -63,6 +64,13 @@ data KeyRepeatCfg
   | IgnoreRepeat       -- ^ Don't model key-repeat at all
   deriving (Eq, Show)
 
+-- | Different color schemes for logging output
+data LogColor
+  = LightBG    -- ^ Colors chosen with a light background in mind
+  | DarkBG     -- ^ Colors chosen with a dark background in mind
+  | Monochrome -- ^ No colors
+  deriving (Eq, Show)
+
 -- app cfg records -------------------------------------------------------------
 
 -- | Settings that deal with binding names to keyboard concepts
@@ -91,9 +99,12 @@ data KioCfg = KioCfg
   , _postKioCmd   :: Cmd           -- ^ Command to run after initializing KeyIO
   } deriving (Eq, Show)
 
--- | Settings that deal with what and how to log information
-newtype LogCfg = LogCfg
-  { _logLevel :: LogLevel -- ^ Minimum urgency for messages to be displayed
+-- | Settings that deal with logging
+data LogCfg = LogCfg
+  { _logLevel  :: LogLevel -- ^ What level of log messages to display
+  , _logColor  :: LogColor -- ^ Whether to use color for pretty-print
+  , _useSep    :: Bool     -- ^ Whether to use log separators
+  , _logTarget :: Handle   -- ^ Where to log to
   } deriving (Eq, Show)
 
 -- | Collection of all configurations put together.
@@ -128,6 +139,9 @@ defAppCfg = AppCfg
     }
   , _appLogCfg = LogCfg
     { _logLevel = LevelWarn
+    , _logColor = DarkBG
+    , _useSep = True
+    , _logTarget = stdout
     }
   , _appKioCfg = KioCfg
     { _keyRepeatCfg = IgnoreRepeat

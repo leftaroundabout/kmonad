@@ -124,6 +124,10 @@ appFlags =
       "Enable unaltered reemission of uncaught events."
       $ setVal fallthrough True "set fallthrough to True"
 
+  , mkFlag "log-to-stderr" (Just 'E')
+      "Write log-messages to stderr instead of stdout"
+      $ setVal logTarget stderr "set logTarget to stderr"
+
   , invocOnly $ mkFlag "verbose" (Just 'v')
       "Make logging very verbose"
       $ setVal logLevel LevelDebug "set logLevel to LevelDebug"
@@ -154,6 +158,10 @@ appOptions =
   , mkOption "log-level" (Just 'l')
       "Minimum urgency that gets displayed: error | warn | info | debug"
       $ setWithExpr logLevel logLevelExpr "logLevel"
+
+  , mkOption "log-color" (Just 'C')
+      "Coloration strategy for logging output: dark-bg | light-bg | none"
+      $ setWithExpr logColor logColorExpr "logColor"
 
     -- KioCfg ------------------------------------------------------------------
 

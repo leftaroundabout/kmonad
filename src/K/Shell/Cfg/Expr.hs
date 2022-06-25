@@ -12,6 +12,7 @@ module K.Shell.Cfg.Expr
   , boolExpr
   , runTypeExpr
   , logLevelExpr
+  , logColorExpr
   , cmdAllowExpr
 
     -- * Complex expressions
@@ -61,6 +62,14 @@ logLevelExpr = namedExpr "LogLevel"
   , ("warn", LevelWarn)
   , ("info", LevelInfo)
   , ("debug", LevelDebug)
+  ]
+
+-- | An expression binding names to different 'LogLevel' values
+logColorExpr :: Expr LogColor
+logColorExpr = namedExpr "LogColor"
+  [ ("dark-bg" , DarkBG)
+  , ("light-bg", LightBG)
+  , ("none"    , Monochrome)
   ]
 
 -- | An expression binding names to the different 'CmdAllow' values

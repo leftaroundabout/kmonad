@@ -1,13 +1,24 @@
 -- |
 
 module K.Shell.Initial
-  ( RunType(..)
+  ( -- * Basic types
+    RunType(..)
   , CmdAllow(..)
   , DelayRate(..)
+
+    -- * OS differences
+  , OS(..)
+  , OSError(..)
+  , AsOSError(..)
+
+    -- * Util
+  , UIO
 
   , module K.Initial
   , module K.Gesture
   , module K.Keyboard
+
+  , module X
   )
 
 where
@@ -15,6 +26,9 @@ where
 import K.Initial
 import K.Gesture
 import K.Keyboard
+
+import Control.Monad.Cont as X
+import System.Info
 
 -- basic types -----------------------------------------------------------------
 
@@ -38,3 +52,33 @@ data DelayRate = DelayRate
   , _rate  :: Dt -- ^ How long between each repeat event
   } deriving (Eq, Show)
 
+-- OS differences --------------------------------------------------------------
+
+data OS
+  = Linux
+  | Windows
+  | Mac
+  | OtherOS Name
+  deriving (Eq, Show)
+
+currentOS :: OS
+currentOS = case os of
+  "darwin"  -> Mac
+  "linux"   -> Linux
+  "mingw32" -> Windows
+  n         -> OtherOS $ pack n
+
+data OSError = OSError OS Text
+makeClassyPrisms ''OSError
+
+instance Show OSError where
+  show (OSError os t) = strUnlines
+    [ "Trying to run code specific to " <> show os <> " on " <> show currentOS
+    , "Error message: " <> unpack t]
+
+instance Exception OSError
+instance AsOSError SomeException where __OSError = _SomeException
+
+-- util ------------------------------------------------------------------------
+
+type UIO m = MonadUnliftIO m

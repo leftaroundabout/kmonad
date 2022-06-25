@@ -138,6 +138,11 @@ appOptions =
       "Minimum urgency that gets displayed: error | warn | info | debug"
       $ setWithExpr logLevel logLevelExpr "logLevel"
 
+  , mkOption "log-color" (Just 'C')
+      "Coloration strategy for logging output: dark-bg | light-bg | none"
+      $ setWithExpr logColor logColorExpr "logColor"
+
+  
     -- KioCfg ------------------------------------------------------------------
 
   , mkOption "key-input" (Just 'i')

@@ -11,6 +11,7 @@ import K.Shell.Cfg
 import K.Shell.Env
 import K.Shell.Error
 import K.Shell.Logging
+import K.Shell.KeyIO
 
 import qualified Control.Exception.Lens as Exc
 
@@ -20,22 +21,31 @@ begin = handleAppError $ do
   ivk <- getInvoc
   let ivkCfg = runChange (ivk^.cfgChange) defAppCfg
 
-  -- Load the dhall configuration file and apply its changes to the ivkCfg
+  -- Load the dhall configuration file
   cfg <- loadCfgFile (ivkCfg^.cfgPath)
   let chg = case validateCfgFile cfg :: Either CfgFileError (Change AppCfg) of
         Left e -> Exc.throwing _CfgFileError e
         Right x -> x
-  let cfgCfg = runChange chg ivkCfg
+
+  -- Apply the invoc after applying the cfgfile to the default config
+  let cfgCfg = runChange (chg <> ivk^.cfgChange) defAppCfg
 
   -- Load the klang kbd-file
-  kbd <- loadKbdFile (cfgCfg^.kbdPath)
+  -- kbd <- runReaderT loadKbdFile cfgCfg -- (cfgCfg^.kbdPath)
 
-  -- Initialize the AppEnv
-  withAppEnv $ \env -> inRIO loop
+  -- Initialize the AppEnv and run the loop inside
+  withAppEnv cfgCfg $ inRIO loop
 
 loop :: RIO AppEnv ()
 loop = do
+  -- Print all the key events forever
+  forever $ do
+    e <- waitEvent
+    atError $ pp e
+    sendEvent e
+
   -- celebrate
+  logInfo "Hello sailor!"
   Exc.throwing _Monkeys ()
 
 

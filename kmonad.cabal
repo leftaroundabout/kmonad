@@ -39,6 +39,7 @@ library
   build-depends:
       ansi-wl-pprint
     , base
+    , binary
     , cereal
     , dhall
     , either
@@ -80,22 +81,21 @@ library
       K
       K.Initial
       K.Initial.Initial
+      K.Initial.Parsing
       K.Initial.Util
       K.Initial.Util.Cmd
       K.Initial.Util.Initial
       K.Initial.Util.Name
       K.Initial.Util.Path
+      K.Initial.Util.Time
       K.Gesture
       K.Gesture.Initial
-      K.Initial.Parsing
       K.Keyboard
       K.Keyboard.Initial
       K.Shell
       K.Shell.Cfg
       K.Shell.Cfg.Cfgable
       K.Shell.Cfg.CfgFile
-      K.Shell.Cfg.Invoc
-      K.Shell.Cfg.Initial
       K.Shell.Cfg.Expr
       K.Shell.Cfg.Expr.Cmd
       K.Shell.Cfg.Expr.Initial
@@ -104,8 +104,18 @@ library
       K.Shell.Cfg.Expr.KeyRepeat
       K.Shell.Cfg.Expr.Path
       K.Shell.Cfg.Expr.Toggles
+      K.Shell.Cfg.Invoc
+      K.Shell.Cfg.Initial
+      K.Shell.Cfg.KbdFile
+      K.Shell.Env
+      K.Shell.Env.Initial
       K.Shell.Error
       K.Shell.Initial
+      K.Shell.KeyIO
+      K.Shell.KeyIO.Env
+      K.Shell.KeyIO.Initial
+      K.Shell.KeyIO.LinEvdevSrc
+      K.Shell.KeyIO.LinUinputSnk
       K.Shell.Logging
       -- KMonad.App
       -- KMonad.App.Cfg
